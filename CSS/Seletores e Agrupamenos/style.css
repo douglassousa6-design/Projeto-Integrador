@@ -13,7 +13,7 @@ p { Seletor Tipo: Seleciona todas as tags <p>}
 
 *{
     margin: 0;  /* espaçamento externo */
-    padding: 0; /* espaçamento interno */'''
+    padding: 0; /* espaçamento interno */
     box-sizing: border-box;
 }
 
