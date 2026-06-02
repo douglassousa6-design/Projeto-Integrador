@@ -15,13 +15,38 @@ class Carro:
         self.modelo = modelo
         self.ano = ano
         self.velocidade = velocidade
+
+
     # Métodos
-    # Método acelerar
+
+    # Método Acelerar
+
+    #"aumento" será o valor recebido para aumentar a velocidade.
+
     def acelerar(self, aumento):
         #self.velocidade = self.velocidade + aumento
         self.velocidade += aumento
 
-        print(f"O carro acelerou para{self.velocidade} km/h")
+        print(f"O carro acelerou para {self.velocidade} km/h")
+
+
+    # Método Frear
+    def frear(self, reducao):
+        #self.velocidade = self.velocidade - reducao
+        self.velocidade -= reducao
+
+        print(f"O carro freou para {self.velocidade} km/h")
+
+    # Método para exibir informações
+    def exibir_info(self):
+        print("=== INFORMAÇÕES DO CARRO ===")
+
+        # Exibe os atributos do objeto
+        print(f"Marca: {self.marca}")
+        print(f"Modelo: {self.modelo}")
+        print(f"Ano: {self.ano}")
+        print(f"Velocidade Atual: {self.velocidade}")
+
 
 
 
@@ -37,7 +62,23 @@ print(f"Modelo: {carro1.modelo}")
 print(f"Ano: {carro1.ano}")
 print(f"Velocidade: {carro1.velocidade} km/h")
 
+# Chamando os métodos
+
+# O valor 50 será enviado para o parâmetro "aumento"
 carro1.acelerar(50)
+
+# O valor 20 será enviado para o parâmetro "redução"
+#carro1.frear (reducao)
+carro1.frear(20)
+
+# Exibindo as informações do carro
+carro1.exibir_info()
+
+
+
+
+
+
 
 carro2 = Carro("Ford", "Mobiauto", 2015, 0)
 
@@ -47,6 +88,9 @@ print(f"Marca: {carro2.marca}")
 print(f"Modelo: {carro2.modelo}")
 print(f"Ano: {carro2.ano}")
 print(f"Velocidade: {carro2.velocidade} km/h")
+
+carro2.acelerar(50)
+carro2.frear(20)
 
 
 carro3 = Carro("Fiat", "Pulse Hybrid", 2024, 0)
