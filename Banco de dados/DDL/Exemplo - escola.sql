@@ -1,65 +1,258 @@
--- Criação do banco de dados
+-- Criação do Banco de Dados
 CREATE DATABASE escola;
--- selecionar o BD para uso
+
+-- Selecionar o BD para uso
 USE escola;
 
--- Criar tabela aluno
+-- Criar tabela alunos 
 -- Armazena os dados dos estudantes
-
 CREATE TABLE alunos(
-		-- Identificador único (PK - chave primária)
-		id_aluno INT AUTO_INCREMENT PRIMARY KEY,
-        
-        -- Nome completo do aluno (obrigatório - NOT NULL)
-        nome VARCHAR(100)  NOT NULL,
-        
-       -- Data de nascimento
-       data_nascimento DATE,
-       
-		-- CPF único p/ cada aluno (Restrição de unicidade - UNIQUE)
-        cpf VARCHAR(14) UNIQUE,
-        
-        -- Email do aluno
-        email VARCHAR(100),
-        
-        -- Telefone de contato
-        telefone VARCHAR(20),
-        
-        -- Data em que o aluno foi matriculado
-        data_matriculado DATE NOT NULL
-	
+	-- Identificador únido (PK - chave primária)
+    id_aluno INT AUTO_INCREMENT PRIMARY KEY,
+    
+    -- Nome completo do aluno (obrigatório - NOT NULL)
+    nome VARCHAR(100) NOT NULL,
+    
+    -- Data de nascimento
+    data_nascimento DATE NOT NULL,
+    
+    -- CPF único p/ cada aluno (Restição de unicidade - UNIQUE)
+    cpf VARCHAR(14) UNIQUE,
+    
+    -- Email do aluno
+    email VARCHAR(100) NOT NULL UNIQUE,
+    
+    -- Telefone de contato
+    telefone VARCHAR(20) NOT NULL,
+    
+    -- Data em que o aluno foi matriculado
+    data_matricula DATE NOT NULL
 );
 
-     --    ESSA TABELA EXECUTA SEPARADA DA TABELA ACIMA (DO ALUNO)
+-- Tabela Professores
+-- Armazena os dados dos professores
 
-CREATE TABLE  professores(
-		-- Identificador único professor
-        id_professor INT AUTO_INCREMENT PRIMARY KEY,
-        
-        -- Nome do professor (Obrigatório - NOT NULL)
-        nome VARCHAR(100) NOT NULL,
-        
-        -- Área de especialização (ex: Matemática, Informática)
-        especialidade VARCHAR (100) NOT NULL, 
-        
-        -- Email do professor
-        email VARCHAR(100) NOT NULL UNIQUE,
-        
-        -- Telefone do contato
-        tefone VARCHAR(20)
+CREATE TABLE professores(
+	-- Identificador único professor
+    id_professor INT AUTO_INCREMENT PRIMARY KEY,
+    
+    -- Nome do professor (Obrigatório - NOT NULL)
+    nome VARCHAR(100) NOT NULL,
+    
+    -- Área de especialização (ex: Matemática, Informática)
+    especialidade VARCHAR (100) NOT NULL,
+    
+    -- Email do professor
+    email VARCHAR(100) NOT NULL UNIQUE,
+    
+    -- Telefone de contato
+    telefone VARCHAR(20)
 );
 
--- Tabela de cursos
--- representa cursos oferecidos pela escola
+-- Tabela de Cursos
+-- Representa cursos oferecidos pela escola
 
 CREATE TABLE cursos(
-		-- Identificador único do curso
-        id_curso INT AUTO_INCREMENT PRIMARY KEY,
-        
-        -- Nome do curso (obrigatório - NOT NULL)
-        nome VARCHAR(100) NOT NULL, 
-        
-        -- CARGA HORÁRIA TOTAL DO CURSO EM HORAS
-        carga_horária INT NOT NULL
+	-- Identificador único do curso
+    id_curso INT AUTO_INCREMENT PRIMARY KEY,
+    
+    -- Nome do curso (obrigatório - NOT NULL)
+    nome VARCHAR(100) NOT NULL,
+    
+    -- Carga horária total do curso em horas
+    carga_horaria INT NOT NULL
 );
 
+-- Tabela Turmas
+-- Cada turma pertence a um curso e a um professor
+
+CREATE TABLE turmas (
+	-- Identificador único da turma
+    id_turma INT AUTO_INCREMENT PRIMARY KEY,
+    
+    -- FK para curso (cada turma pertence a um curso)
+    id_curso INT NOT NULL,
+    
+    -- FK para professor (responsável pela turma)
+    id_professor INT NOT NULL,
+    
+    -- Ano da turma (ex: 2026)
+    ano INT NOT NULL,
+    
+    -- Série (1º, 2º, 3º ano)
+    serie INT NOT NULL,
+    
+    -- Chave estrangeira -> cursos (1 curso tem várias turmas)
+    FOREIGN KEY (id_curso)
+		REFERENCES cursos(id_curso)
+        ON DELETE RESTRICT,
+        -- RESTRICT impede apagar curso com turmas vinculadas
+    
+    -- Chave estrangeira -> professores (1 professor pode ter várias turmas)
+    FOREIGN KEY (id_professor)
+		REFERENCES professores(id_professor)
+        ON DELETE RESTRICT
+        -- Impede excluir professor se ele estiver vinculado a uma turma
+);
+
+-- Tabela: disciplinas
+CREATE TABLE disciplinas(
+	-- Identificador da disciplina
+    id_disciplina INT AUTO_INCREMENT PRIMARY KEY,
+    
+    -- Nome da disciplina
+    nome VARCHAR(100) NOT NULL,
+    
+    -- Carga horária da disciplina
+    carga_horaria INT NOT NULL
+);
+
+-- Tabela: curso_disciplinas 
+-- Relacionamento N:N entre cursos e disciplinas
+
+CREATE TABLE curso_disciplinas(
+	-- FK para curso 
+    id_curso INT NOT NULL,
+    
+    -- FK para disciplina
+    id_disciplina INT NOT NULL,
+    
+    -- Chave primária composta (evita duplicidade)
+    PRIMARY KEY (id_curso, id_disciplina),
+    
+    -- FK -> cursos
+    FOREIGN KEY(id_curso)
+		REFERENCES cursos(id_curso)
+        ON DELETE CASCADE,
+        -- CASCADE: Ao excluir curso, remove automaticamente relações
+        
+    -- FK -> disciplinas
+    FOREIGN KEY(id_disciplina)
+		REFERENCES disciplinas(id_disciplina)
+        ON DELETE CASCADE
+        -- CASCADE: Ao excluir disciplina, remove automaticamente relações
+);
+
+-- Tabela: notas 
+-- Armazena notas dos alunos por disciplina
+
+CREATE TABLE notas(
+	-- Identificador da nota
+    id_nota INT AUTO_INCREMENT PRIMARY KEY,
+    
+    -- FK para aluno 
+    id_aluno INT NOT NULL,
+    
+    -- FK para disciplina
+    id_disciplina INT NOT NULL,
+    
+    -- Nota (ex: 7.5)
+    nota DECIMAL(5,2),
+    
+    -- FK -> alunos (1 aluno pode ter várias notas)
+    FOREIGN KEY (id_aluno)
+		REFERENCES alunos(id_aluno)
+        ON DELETE CASCADE,
+        -- Se o aluno for excluído, suas notas também serão
+
+    -- FK -> disciplinas
+    FOREIGN KEY (id_disciplina)
+		REFERENCES disciplinas(id_disciplina)
+        ON DELETE RESTRICT,
+        -- Impede excluir disciplina com notas cadastradas
+	
+    -- Garante que o aluno tenha apenas uma nota por disciplina
+    UNIQUE (id_aluno, id_disciplina)
+);
+
+-- ALTER TABLE (Adição da FK ALUNOS -> Turmas)
+
+-- 1. Adiciona a coluna id_turma na tabela alunos 
+-- Essa coluna irá armazenar a referência da turma do aluno
+ALTER TABLE alunos 
+ADD COLUMN id_turma INT;
+
+-- 2. Torna a coluna obrigatória (NOT NULL)
+-- Garante que todo aluno esteja vinculado a uma turma
+ALTER TABLE alunos
+MODIFY COLUMN id_turma INT NOT NULL;
+
+-- 3. Cria chave estrangeira (relacionamento)
+ALTER TABLE alunos 
+ADD CONSTRAINT fk_aluno_turma
+FOREIGN KEY (id_turma)
+REFERENCES turmas(id_turma)
+ON DELETE RESTRICT;
+
+-- EXPLICAÇÃO 
+-- A chave estrangeira garante que:
+-- 1: Todo aluno deve estar vinculado a uma turma existente
+-- 2: Não é possivel inserir um aluno com uma turma inexistente
+-- 3: Não é possivel excluir uma turma que possua alunos vinculados (RESTRICT)
+
+-- Apaga o Banco de Dados
+-- DROP DATABASE IF EXISTS escola;
+
+
+SELECT *
+FROM professores;
+
+-- Mostra a lista de professores.
+
+SELECT *
+FROM alunos;
+
+-- Mostra a lista de alunos.
+
+SELECT *
+FROM cursos;
+
+-- Mostra a lista dos cursos.
+
+-- O * serve para listar todos.
+
+SELECT *
+FROM professores
+WHERE nome = 'Mateus';
+
+-- Assim é para listar apenas a pessoa que começa com esse nome (nesse caso, listar todos os professores que se chamam Mateus).
+
+SELECT *
+FROM professores
+WHERE nome = 'Mateus', idade = '23';
+-- Já aqui é como colocar mais informações para encontrar a pessoa que você quer encontrar.
+
+SELECT *
+FROM alunos
+WHERE nota > 8; 
+
+-- Para buscar as Notas dos alunos.
+
+UPDATE professores
+SET telefone = '(63)98888-1111'
+WHERE id_professor = 1;
+
+-- Mudar o número (Alterar alguma coisa. Que nesse caso foi o número).
+
+UPDATE professores
+SET especialidade = 'Matemática'
+WHERE id_professor = 4;
+
+-- Mudar a especialidade.
+
+UPDATE cursos
+SET carga_horaria = 1400
+WHERE id_curso = 1;
+
+-- Alterar a carga horária do curso.
+
+DELETE FROM disciplinas
+WHERE id_disciplina = 4;
+
+-- Deleta o que você quer deletar do Banco de Dados. (Aqui como exemplo foi a disciplina)
+
+DELETE FROM disciplinas
+WHERE id_disciplina = 1;
+
+DELETE FROM turmas
+WHERE id_turma = 1;
